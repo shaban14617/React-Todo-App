@@ -4,7 +4,10 @@ import Task from "./Task";
 import Taskform from "./Taskform";
 
 function App() {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState(() => {
+    const storedTasks = JSON.parse(localStorage.getItem("tasks"));
+    return storedTasks || [];
+  });
 
   useEffect(() => {
     if (tasks.length === 0) return;
@@ -12,11 +15,13 @@ function App() {
   }, [tasks]);
   useEffect(() => {
     const tasks = JSON.parse(localStorage.getItem("tasks"));
-    setTasks(tasks);
+    setTasks(tasks || []);
   }, []);
+
   const numberComplete = tasks.filter((t) => t.done).length;
   const numberTotal = tasks.length;
   const percentage = (numberComplete / numberTotal) * 100;
+
   function getMessage() {
     if (percentage === 0) {
       return "At least do one";
@@ -53,10 +58,15 @@ function App() {
 
   return (
     <main>
-      <h1>
-        {numberComplete} /{numberTotal} complete
-      </h1>
-      <h2>{getMessage()}</h2>
+      {tasks && (
+        <>
+          <h1>
+            {numberComplete} /{numberTotal} complete
+          </h1>
+          <h2>{getMessage()}</h2>
+        </>
+      )}
+
       <Taskform onAdd={addTasks} />
 
       {tasks.map((task, index) => (
